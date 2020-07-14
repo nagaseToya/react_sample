@@ -28,6 +28,7 @@ class App extends React.Component {
       },
       users: [],
       input_text: "",
+      output_text: "",
       posts: [],
     };
     this.cHandleChange = this.cHandleChange.bind(this);
@@ -68,7 +69,10 @@ class App extends React.Component {
   };
   // 投稿フォームに文字が入力された時の処理
   inputOnChange = (event) => {
-    this.setState({ input_text: event.target.value });
+    this.setState({
+      output_text: event.target.value.replace(/\r?\n/g, "<br>"),
+      input_text: event.target.value,
+    });
   };
   // 投稿ボタンを押した時の処理
   postMessage = () => {
@@ -79,7 +83,7 @@ class App extends React.Component {
       // 投稿内容を作成し、保存
       let post = {
         id: this.state.posts.length,
-        text: this.state.input_text,
+        text: this.state.output_text,
         date: this.dateFormat(new Date(), "YYYY/MM/DD hh:mm:ss"),
         submit_user: this.state.current_user,
         prised_user: this.state.prised_user,
@@ -221,7 +225,20 @@ class App extends React.Component {
   componentDidMount() {
     // localstrage の読み込み
     let posts_data = JSON.parse(localStorage["posts"] || "[]");
-    this.setState({ posts: posts_data });
+    let posts = [];
+    for (let i = 0; i < posts_data.length; i++) {
+      const post = {
+        date: posts_data[i].date,
+        id: posts_data[i].id,
+        liked_point: posts_data[i].liked_point,
+        liked_user: posts_data[i].liked_user,
+        prised_user: posts_data[i].prised_user,
+        submit_user: posts_data[i].submit_user,
+        text: posts_data[i].text.replace(/<br>/g, "\n"),
+      };
+      posts.push(post);
+    }
+    this.setState({ posts: posts });
 
     let users_data = JSON.parse(localStorage["users"] || "[]");
     this.setState({ users: users_data });
@@ -252,7 +269,7 @@ class App extends React.Component {
         },
         {
           id: 3,
-          name: "アンギュラ子",
+          name: "angula子",
           img: angular_logo,
           prise_point: 100,
           got_point: 0,
@@ -292,81 +309,105 @@ class App extends React.Component {
         }
       })
       .map((post) => (
-        <div key={post.date}>
-          <img src={post.submit_user.img} />
-          <div>{post.submit_user.name}</div>
-          <img src={post.prised_user.img} />
-          <div>{post.prised_user.name}</div>
-          <p>{post.text}</p>
-          <div>{post.liked_point}</div>
-          <div>
-            <div>拍手一覧</div>
-            {post.liked_user
-              .sort(function (a, b) {
-                if (a.gave_point > b.gave_point) {
-                  return -1;
-                } else {
-                  return 1;
-                }
-              })
-              .map((value) => (
-                <div key={post.liked_user}>
-                  {value.name} : {value.gave_point}
-                </div>
-              ))}
+        <div className="card" key={post.date}>
+          <img className="post-sub-img" src={post.submit_user.img} />
+          <span className="post-sub-name">{post.submit_user.name}</span>
+          <span className="post-date">{post.date}</span>
+          <img className="post-pri-img" src={post.prised_user.img} />
+          <div className="post-pri-name">{post.prised_user.name}</div>
+          <div className="text-cover">
+            <textarea
+              className="post-text"
+              value={post.text.replace(/<br>/g, "\n")}
+            />
+          </div>
+          <i className="direction fas fa-angle-double-right"></i>
+          <div className="liked-container">
+            <div className="like-count">{post.liked_point}</div>
+            <div className="liked-user-list">
+              <div>拍手一覧</div>
+              {post.liked_user
+                .sort(function (a, b) {
+                  if (a.gave_point > b.gave_point) {
+                    return -1;
+                  } else {
+                    return 1;
+                  }
+                })
+                .map((value) => (
+                  <div key={post.id}>
+                    {value.name} : {value.gave_point}
+                  </div>
+                ))}
+            </div>
           </div>
           <i
-            className="fas fa-hand-holding-heart"
+            className="like-icon fas fa-hand-holding-heart"
             onClick={() => this.likePost(post)}
           ></i>
-          <div>{post.date}</div>
         </div>
       ));
 
     // レンダリング
     return (
       <div className="App">
-        <div className="header">
-          <img src={this.state.current_user.img} />
-          <div>
-            <select name="current_user" onChange={this.cHandleChange}>
-              <option>ーユーザーを選択して下さいー</option>
-              {userList}
-            </select>
+        <div className="app-background"></div>
+        <div className="app-container">
+          <div className="header">
+            <span className="c-img-holder">
+              <img className="c-user-img" src={this.state.current_user.img} />
+              <div>
+                <select name="current_user" onChange={this.cHandleChange}>
+                  <option>ログインユーザー選択</option>
+                  {userList}
+                </select>
+              </div>
+            </span>
+            <span className="c-user-details">
+              <div>
+                <div className="c-name-t color-font">user name</div>
+                <span className="c-name">{this.state.current_user.name}</span>
+              </div>
+              <span>
+                <div className="c-name-t color-font">拍手できる数</div>
+                <span className="c-name">
+                  {this.state.current_user.prise_point}
+                </span>
+              </span>
+              <span>
+                <div className="c-name-t color-font">拍手された数</div>
+                <span className="c-name">
+                  {this.state.current_user.got_point}
+                </span>
+              </span>
+            </span>
           </div>
-          <div>
-            <div>
-              <span>名前：</span>
-              <span>{this.state.current_user.name}</span>
+          <div className="post">
+            <div className="inner">
+              <div className="p-img-holder">
+                <img className="p-user-img" src={this.state.prised_user.img} />
+                <div>
+                  <select name="prised_user" onChange={this.pHandleChange}>
+                    <option>褒める人を選択</option>
+                    {userList}
+                  </select>
+                </div>
+              </div>
+              <textarea
+                className="textlines"
+                onChange={this.inputOnChange}
+                type="text"
+                name="input"
+                value={this.state.input_text}
+                placeholder="あなたの仲間のステキな行動を褒めようぜ！"
+              />
+              <div className="post-button" onClick={this.postMessage}>
+                褒める
+              </div>
             </div>
-            <span>拍手できる：</span>
-            <span>{this.state.current_user.prise_point}</span>
-            <span>拍手された：</span>
-            <span>{this.state.current_user.got_point}</span>
           </div>
+          <div className="list">{post_item}</div>
         </div>
-        <div className="post">
-          <img src={this.state.prised_user.img} />
-          <div>
-            <select name="prised_user" onChange={this.pHandleChange}>
-              <option>ーユーザーを選択して下さいー</option>
-              {userList}
-            </select>
-          </div>
-          <div>
-            <span>名前：</span>
-            <span>{this.state.prised_user.name}</span>
-          </div>
-          <input
-            onChange={this.inputOnChange}
-            type="text"
-            name="input"
-            value={this.state.input_text}
-            placeholder="あなたの仲間のステキな行動を褒めようぜ！"
-          />
-          <button onClick={this.postMessage}>褒める</button>
-        </div>
-        <div className="list">{post_item}</div>
       </div>
     );
   }

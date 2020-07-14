@@ -2,11 +2,11 @@ import React from "react";
 import "./App.css";
 import def_logo from "./assets/def-user.jpeg";
 import uni_logo from "./assets/uni_image.jpeg";
-import react_logo from "./assets/react_logo.png";
-import vue_logo from "./assets/Vue_logo.png";
-import angular_logo from "./assets/angular_logo.png";
-import html_logo from "./assets/html_logo.jpeg";
-import css_logo from "./assets/css_logo.png";
+import anemo_logo from "./assets/anemo.jpeg";
+import hime_logo from "./assets/hime.jpeg";
+import hotal_logo from "./assets/hotal.jpeg";
+import judge_logo from "./assets/judge-man.jpeg";
+import kurage_logo from "./assets/kurage.jpeg";
 
 class App extends React.Component {
   constructor(props) {
@@ -95,6 +95,15 @@ class App extends React.Component {
       localStorage["posts"] = JSON.stringify(this.state.posts);
       // 初期化
       this.setState({ input_text: "" });
+      this.setState({
+        prised_user: {
+          id: -2,
+          name: "ユーザーを選択して下さい",
+          img: def_logo,
+          prise_point: 100,
+          got_point: 0,
+        },
+      });
     }
   };
   // 投稿する際に条件を満たしているかチェックする関数
@@ -255,36 +264,36 @@ class App extends React.Component {
         },
         {
           id: 1,
-          name: "リアク太郎",
-          img: react_logo,
+          name: "ヒメ",
+          img: hime_logo,
           prise_point: 100,
           got_point: 0,
         },
         {
           id: 2,
-          name: "ビュー次郎",
-          img: vue_logo,
+          name: "ホタル",
+          img: hotal_logo,
           prise_point: 100,
           got_point: 0,
         },
         {
           id: 3,
-          name: "angula子",
-          img: angular_logo,
+          name: "ジャッジくん",
+          img: judge_logo,
           prise_point: 100,
           got_point: 0,
         },
         {
           id: 4,
-          name: "Hiroto TML",
-          img: html_logo,
+          name: "くらげ",
+          img: kurage_logo,
           prise_point: 100,
           got_point: 0,
         },
         {
           id: 5,
-          name: "She SS",
-          img: css_logo,
+          name: "あねも",
+          img: anemo_logo,
           prise_point: 100,
           got_point: 0,
         },
@@ -387,7 +396,11 @@ class App extends React.Component {
               <div className="p-img-holder">
                 <img className="p-user-img" src={this.state.prised_user.img} />
                 <div>
-                  <select name="prised_user" onChange={this.pHandleChange}>
+                  <select
+                    value={this.state.prised_user.name}
+                    name="prised_user"
+                    onChange={this.pHandleChange}
+                  >
                     <option>褒める人を選択</option>
                     {userList}
                   </select>
